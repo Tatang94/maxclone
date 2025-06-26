@@ -166,7 +166,7 @@ try {
     $orderId = generateOrderId();
     
     // Start transaction
-    beginTransaction();
+    $pdo->beginTransaction();
     
     try {
         // Insert order
@@ -201,7 +201,14 @@ try {
             $orderData['order_type'] = 'transport';
         }
         
-        $orderDbId = insertData('orders', $orderData);
+        // Build insert query dynamically
+        $columns = array_keys($orderData);
+        $placeholders = ':' . implode(', :', $columns);
+        $sql = "INSERT INTO orders (" . implode(', ', $columns) . ") VALUES (" . $placeholders . ")";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($orderData);
+        $orderDbId = $pdo->lastInsertId();
         
         // Process wallet payment if selected
         if ($paymentMethod === 'wallet') {
@@ -226,7 +233,7 @@ try {
         }
         
         // Commit transaction
-        commitTransaction();
+        $pdo->commit();
         
         // Send confirmation email/SMS if configured
         sendOrderConfirmation($userId, $orderDbId);
@@ -249,7 +256,7 @@ try {
         
     } catch (Exception $e) {
         // Rollback transaction on error
-        rollbackTransaction();
+        $pdo->rollback();
         throw $e;
     }
     

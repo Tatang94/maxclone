@@ -634,13 +634,12 @@ function submitFoodOrder(orderData) {
     const originalText = confirmBtn.textContent;
     
     // Submit order via AJAX
-    fetch('process/order_process.php', {
+    fetch('process/food_order_process.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-            action: 'create_food_order',
             food_id: orderData.food_id,
             food_name: orderData.food_name,
             food_type: orderData.food_type,
