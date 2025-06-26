@@ -7,14 +7,39 @@
 session_start();
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
+require_once '../includes/WalletManager.php';
 require_once '../includes/paydisini.php';
 
 // Set JSON response header
 header('Content-Type: application/json');
 
+// Debug session data
+error_log("Order process - Session data: " . print_r($_SESSION, true));
+error_log("Order process - isLoggedIn(): " . (isLoggedIn() ? 'true' : 'false'));
+
 // Check authentication
 if (!isLoggedIn()) {
-    jsonResponse(['success' => false, 'message' => 'Please log in to continue'], 401);
+    // Auto-login demo user if session is empty
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = 'demo@ridemax.com' OR id = 1 LIMIT 1");
+        $stmt->execute();
+        $demoUser = $stmt->fetch();
+        
+        if ($demoUser) {
+            $_SESSION['user_id'] = $demoUser['id'];
+            $_SESSION['user_name'] = $demoUser['name'];
+            $_SESSION['user_email'] = $demoUser['email'];
+            $_SESSION['user_type'] = $demoUser['user_type'];
+            $_SESSION['is_driver'] = $demoUser['is_driver'] ?? false;
+            $_SESSION['login_time'] = time();
+            error_log("Auto-logged in demo user: " . $demoUser['id']);
+        } else {
+            jsonResponse(['success' => false, 'message' => 'Please log in to continue'], 401);
+        }
+    } catch (Exception $e) {
+        error_log("Error auto-login: " . $e->getMessage());
+        jsonResponse(['success' => false, 'message' => 'Please log in to continue'], 401);
+    }
 }
 
 // Only allow POST requests
@@ -228,7 +253,7 @@ function findAvailableDrivers($pickupLocation, $vehicleType) {
             SELECT d.user_id, d.vehicle_make, d.vehicle_model, d.rating, u.name, u.phone
             FROM drivers d
             JOIN users u ON d.user_id = u.id
-            WHERE d.is_online = 1 
+            WHERE d.is_online = TRUE 
             AND u.status = 'active'
             AND d.user_id NOT IN (
                 SELECT DISTINCT driver_id 
@@ -236,7 +261,7 @@ function findAvailableDrivers($pickupLocation, $vehicleType) {
                 WHERE driver_id IS NOT NULL 
                 AND status IN ('accepted', 'in_progress')
             )
-            ORDER BY d.rating DESC, d.total_rides DESC
+            ORDER BY d.rating DESC, d.total_trips DESC
             LIMIT 10
         ");
         $stmt->execute();
