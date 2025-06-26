@@ -125,39 +125,39 @@ include 'includes/header.php';
                 </div>
             </div>
 
-            <!-- Vehicle Selection -->
-            <div class="vehicle-section">
-                <div class="vehicle-options d-flex gap-2 mb-4">
-                    <div class="vehicle-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center vehicle-card active" data-type="bike" data-price="8000">
-                        <div class="vehicle-icon mb-2">
-                            <i class="fas fa-motorcycle text-warning" style="font-size: 2.5rem;"></i>
+            <!-- Menu Makanan -->
+            <div class="food-section">
+                <div class="food-options d-flex gap-2 mb-4">
+                    <div class="food-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center food-card active" data-type="nasi" data-price="15000">
+                        <div class="food-icon mb-2">
+                            <i class="fas fa-bowl-rice text-warning" style="font-size: 2.5rem;"></i>
                         </div>
-                        <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Bike</h6>
+                        <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Nasi</h6>
                         <div class="price-info">
                             <span class="text-muted" style="font-size: 10px;">Mulai dari</span><br>
-                            <span class="fw-bold text-warning" id="bike-price" style="font-size: 12px;">Rp 8.000</span>
+                            <span class="fw-bold text-warning" id="nasi-price" style="font-size: 12px;">Rp 15.000</span>
                         </div>
                     </div>
                     
-                    <div class="vehicle-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center vehicle-card" data-type="car" data-price="15000">
-                        <div class="vehicle-icon mb-2">
-                            <i class="fas fa-bicycle text-primary" style="font-size: 2.5rem;"></i>
+                    <div class="food-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center food-card" data-type="mie" data-price="12000">
+                        <div class="food-icon mb-2">
+                            <i class="fas fa-bowl-food text-primary" style="font-size: 2.5rem;"></i>
                         </div>
-                        <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Car</h6>
+                        <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Mie</h6>
                         <div class="price-info">
                             <span class="text-muted" style="font-size: 10px;">Mulai dari</span><br>
-                            <span class="fw-bold text-primary" id="car-price" style="font-size: 12px;">Rp 15.000</span>
+                            <span class="fw-bold text-primary" id="mie-price" style="font-size: 12px;">Rp 12.000</span>
                         </div>
                     </div>
                     
-                    <div class="vehicle-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center vehicle-card" data-type="delivery" data-price="12000">
-                        <div class="vehicle-icon mb-2">
-                            <i class="fas fa-box text-success" style="font-size: 2.5rem;"></i>
+                    <div class="food-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center food-card" data-type="minuman" data-price="8000">
+                        <div class="food-icon mb-2">
+                            <i class="fas fa-glass-water text-success" style="font-size: 2.5rem;"></i>
                         </div>
-                        <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Delivery</h6>
+                        <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Minuman</h6>
                         <div class="price-info">
                             <span class="text-muted" style="font-size: 10px;">Mulai dari</span><br>
-                            <span class="fw-bold text-success" id="delivery-price" style="font-size: 12px;">Rp 12.000</span>
+                            <span class="fw-bold text-success" id="minuman-price" style="font-size: 12px;">Rp 8.000</span>
                         </div>
                     </div>
                 </div>
@@ -288,18 +288,18 @@ include 'includes/header.php';
 
 <!-- Custom CSS for Maxim-style design -->
 <style>
-.vehicle-card {
+.food-card {
     border: 2px solid transparent;
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
-.vehicle-card.active {
+.food-card.active {
     border-color: #FFC107;
     background: #FFFBF0 !important;
 }
 
-.vehicle-card:hover {
+.food-card:hover {
     border-color: #FFC107;
     transform: translateY(-2px);
 }
@@ -381,11 +381,11 @@ include 'includes/header.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Vehicle selection handling
-    const vehicleCards = document.querySelectorAll('.vehicle-card');
-    vehicleCards.forEach(card => {
+    // Food selection handling
+    const foodCards = document.querySelectorAll('.food-card');
+    foodCards.forEach(card => {
         card.addEventListener('click', function() {
-            vehicleCards.forEach(c => c.classList.remove('active'));
+            foodCards.forEach(c => c.classList.remove('active'));
             this.classList.add('active');
         });
     });
@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('orderForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const selectedVehicle = document.querySelector('.vehicle-card.active');
+        const selectedFood = document.querySelector('.food-card.active');
         const pickupLocation = document.getElementById('pickup_location').value.trim();
         const destination = document.getElementById('destination').value.trim();
         const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
@@ -425,8 +425,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        if (!selectedVehicle) {
-            alert('Mohon pilih jenis kendaraan');
+        if (!selectedFood) {
+            alert('Mohon pilih menu makanan');
             return;
         }
         
@@ -441,12 +441,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Show confirmation modal with order details
-        showOrderConfirmation(selectedVehicle, pickupLocation, destination);
+        showOrderConfirmation(selectedFood, pickupLocation, destination);
     });
     
     // Confirm order button
     document.getElementById('confirmOrder').addEventListener('click', function() {
-        const selectedVehicle = document.querySelector('.vehicle-card.active');
+        const selectedFood = document.querySelector('.food-card.active');
         const pickupLocation = document.getElementById('pickup_location').value;
         const destination = document.getElementById('destination').value;
         const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
@@ -454,8 +454,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const orderData = {
             pickup_location: pickupLocation,
             destination: destination,
-            vehicle_type: selectedVehicle.dataset.type,
-            estimated_price: selectedVehicle.dataset.price,
+            vehicle_type: selectedFood.dataset.type,
+            estimated_price: selectedFood.dataset.price,
             payment_method: paymentMethod
         };
         
@@ -516,22 +516,22 @@ function loadWalletBalance() {
 }
 
 // Show order confirmation modal
-function showOrderConfirmation(selectedVehicle, pickupLocation, destination) {
-    // Get vehicle info
-    const vehicleType = selectedVehicle.dataset.type;
-    const vehiclePrice = selectedVehicle.dataset.price;
+function showOrderConfirmation(selectedFood, pickupLocation, destination) {
+    // Get food info
+    const foodType = selectedFood.dataset.type;
+    const foodPrice = selectedFood.dataset.price;
     
-    // Get vehicle icon
-    let vehicleIcon = '';
-    switch(vehicleType) {
-        case 'bike':
-            vehicleIcon = '<i class="fas fa-motorcycle text-warning" style="font-size: 2rem;"></i>';
+    // Get food icon
+    let foodIcon = '';
+    switch(foodType) {
+        case 'nasi':
+            foodIcon = '<i class="fas fa-bowl-rice text-warning" style="font-size: 2rem;"></i>';
             break;
-        case 'car':
-            vehicleIcon = '<i class="fas fa-car text-primary" style="font-size: 2rem;"></i>';
+        case 'mie':
+            foodIcon = '<i class="fas fa-bowl-food text-primary" style="font-size: 2rem;"></i>';
             break;
-        case 'delivery':
-            vehicleIcon = '<i class="fas fa-box text-success" style="font-size: 2rem;"></i>';
+        case 'minuman':
+            foodIcon = '<i class="fas fa-glass-water text-success" style="font-size: 2rem;"></i>';
             break;
     }
     
@@ -544,11 +544,11 @@ function showOrderConfirmation(selectedVehicle, pickupLocation, destination) {
     // Update modal content
     document.getElementById('confirmPickup').textContent = pickupLocation;
     document.getElementById('confirmDestination').textContent = destination;
-    document.getElementById('confirmVehicleIcon').innerHTML = vehicleIcon;
-    document.getElementById('confirmVehicleType').textContent = vehicleType.charAt(0).toUpperCase() + vehicleType.slice(1);
+    document.getElementById('confirmVehicleIcon').innerHTML = foodIcon;
+    document.getElementById('confirmVehicleType').textContent = foodType.charAt(0).toUpperCase() + foodType.slice(1);
     document.getElementById('confirmDistance').textContent = distance;
     document.getElementById('confirmDuration').textContent = duration;
-    document.getElementById('confirmPrice').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(vehiclePrice);
+    document.getElementById('confirmPrice').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(foodPrice);
     
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('orderConfirmModal'));
