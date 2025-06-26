@@ -14,7 +14,7 @@
                     </div>
                     <div class="col">
                         <a href="order.php" class="bottom-nav-link">
-                            <i class="fas fa-car"></i>
+                            <i class="fas fa-bicycle"></i>
                             <span>Book</span>
                         </a>
                     </div>
@@ -27,7 +27,7 @@
                     <?php if (isDriver()): ?>
                     <div class="col">
                         <a href="driver.php" class="bottom-nav-link">
-                            <i class="fas fa-car-side"></i>
+                            <i class="fas fa-bicycle"></i>
                             <span>Driver</span>
                         </a>
                     </div>

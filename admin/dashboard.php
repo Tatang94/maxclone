@@ -102,7 +102,7 @@ try {
                             <h3 class="mb-1"><?php echo number_format($totalDrivers); ?></h3>
                             <small class="opacity-75">Total Driver</small>
                         </div>
-                        <i class="fas fa-car fa-2x opacity-50"></i>
+                        <i class="fas fa-bicycle fa-2x opacity-50"></i>
                     </div>
                 </div>
             </div>
@@ -385,7 +385,7 @@ function viewRealTimeOrders() {
             } else {
                 container.innerHTML = `
                     <div class="text-center text-muted py-4">
-                        <i class="fas fa-car fa-2x mb-2 opacity-50"></i>
+                        <i class="fas fa-bicycle fa-2x mb-2 opacity-50"></i>
                         <p>No active orders</p>
                     </div>
                 `;

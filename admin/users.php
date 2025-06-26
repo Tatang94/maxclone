@@ -373,7 +373,7 @@ function renderUsersTable(users) {
                     </div>
                     <div>
                         <div class="fw-semibold">${escapeHtml(user.name)}</div>
-                        ${user.is_driver == 1 ? '<small class="text-success"><i class="fas fa-car me-1"></i>Driver</small>' : ''}
+                        ${user.is_driver == 1 ? '<small class="text-success"><i class="fas fa-bicycle me-1"></i>Pengendara Sepeda</small>' : ''}
                     </div>
                 </div>
             </td>

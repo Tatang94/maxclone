@@ -212,7 +212,7 @@ require_once 'includes/header.php';
         <div class="card">
             <div class="card-body text-center">
                 <div class="mb-3">
-                    <i class="fas fa-car fa-3x text-primary"></i>
+                    <i class="fas fa-bicycle fa-3x text-primary"></i>
                 </div>
                 <h6 class="fw-bold">RideMax</h6>
                 <p class="text-muted mb-2">Versi 1.0.0</p>

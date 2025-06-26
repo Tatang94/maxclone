@@ -21,7 +21,7 @@ include 'includes/header.php';
                     <!-- Logo -->
                     <div class="text-center mb-4">
                         <div class="logo-container">
-                            <i class="fas fa-car text-primary fa-3x mb-2"></i>
+                            <i class="fas fa-bicycle text-primary fa-3x mb-2"></i>
                             <h3 class="text-primary fw-bold">RideMax</h3>
                             <p class="text-muted">Perjalanan Anda, Pilihan Anda</p>
                         </div>

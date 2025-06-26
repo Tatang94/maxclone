@@ -21,7 +21,7 @@ include 'includes/header.php';
                     <!-- Logo -->
                     <div class="text-center mb-4">
                         <div class="logo-container">
-                            <i class="fas fa-car text-primary fa-3x mb-2"></i>
+                            <i class="fas fa-bicycle text-primary fa-3x mb-2"></i>
                             <h3 class="text-primary fw-bold">RideMax</h3>
                             <p class="text-muted">Bergabung dengan revolusi transportasi</p>
                         </div>
@@ -78,38 +78,38 @@ include 'includes/header.php';
                             <select class="form-select" id="user_type" name="user_type" required>
                                 <option value="">Pilih jenis akun</option>
                                 <option value="user">Penumpang</option>
-                                <option value="driver">Driver</option>
+                                <option value="driver">Pengendara Sepeda</option>
                             </select>
                         </div>
 
-                        <!-- Driver specific fields -->
+                        <!-- Bicycle specific fields -->
                         <div id="driverFields" class="d-none">
                             <div class="mb-3">
-                                <label for="license_number" class="form-label">Nomor SIM</label>
+                                <label for="license_number" class="form-label">Nomor KTP</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                                    <input type="text" class="form-control" id="license_number" name="license_number">
+                                    <input type="text" class="form-control" id="license_number" name="license_number" placeholder="1234567890123456">
                                 </div>
                             </div>
                             
                             <div class="row">
                                 <div class="col-6">
                                     <div class="mb-3">
-                                        <label for="vehicle_make" class="form-label">Merk Kendaraan</label>
-                                        <input type="text" class="form-control" id="vehicle_make" name="vehicle_make" placeholder="Toyota">
+                                        <label for="vehicle_make" class="form-label">Merk Sepeda</label>
+                                        <input type="text" class="form-control" id="vehicle_make" name="vehicle_make" placeholder="Polygon">
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="mb-3">
-                                        <label for="vehicle_model" class="form-label">Model Kendaraan</label>
-                                        <input type="text" class="form-control" id="vehicle_model" name="vehicle_model" placeholder="Camry">
+                                        <label for="vehicle_model" class="form-label">Tipe Sepeda</label>
+                                        <input type="text" class="form-control" id="vehicle_model" name="vehicle_model" placeholder="Sepeda Gunung">
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="vehicle_plate" class="form-label">Plat Nomor</label>
-                                <input type="text" class="form-control" id="vehicle_plate" name="vehicle_plate" placeholder="ABC-1234">
+                                <label for="vehicle_plate" class="form-label">Nomor Registrasi</label>
+                                <input type="text" class="form-control" id="vehicle_plate" name="vehicle_plate" placeholder="REG-001">
                             </div>
                         </div>
 

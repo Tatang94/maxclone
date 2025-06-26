@@ -82,10 +82,10 @@ include 'includes/header.php';
                 
                 <div class="step-item">
                     <div class="step-icon">
-                        <i class="fas fa-car"></i>
+                        <i class="fas fa-bicycle"></i>
                     </div>
                     <div class="step-text">
-                        <div class="step-title">Driver Ditemukan</div>
+                        <div class="step-title">Pengendara Ditemukan</div>
                         <div class="step-time">-</div>
                     </div>
                 </div>

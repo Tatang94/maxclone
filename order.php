@@ -141,7 +141,7 @@ include 'includes/header.php';
                     
                     <div class="vehicle-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center vehicle-card" data-type="car" data-price="15000">
                         <div class="vehicle-icon mb-2">
-                            <i class="fas fa-car text-primary" style="font-size: 2.5rem;"></i>
+                            <i class="fas fa-bicycle text-primary" style="font-size: 2.5rem;"></i>
                         </div>
                         <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Car</h6>
                         <div class="price-info">

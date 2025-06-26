@@ -53,7 +53,7 @@ include 'includes/header.php';
             <div class="col-6 col-md-3">
                 <div class="stat-card bg-white rounded-3 shadow-sm p-3 text-center">
                     <div class="stat-icon text-primary mb-2">
-                        <i class="fas fa-car fa-2x"></i>
+                        <i class="fas fa-bicycle fa-2x"></i>
                     </div>
                     <h6 class="stat-value mb-1" id="todayRides">0</h6>
                     <small class="text-muted">Rides Today</small>
@@ -324,7 +324,7 @@ function loadAvailableRides() {
             } else {
                 container.innerHTML = `
                     <div class="text-center text-muted py-4">
-                        <i class="fas fa-car fa-2x mb-2 opacity-50"></i>
+                        <i class="fas fa-bicycle fa-2x mb-2 opacity-50"></i>
                         <p>No available rides at the moment</p>
                         <small>Stay online to receive ride requests</small>
                     </div>

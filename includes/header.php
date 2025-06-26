@@ -56,7 +56,7 @@ $currentUser = isLoggedIn() ? getCurrentUser() : null;
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top mobile-nav">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="<?php echo isAdmin() ? 'admin/dashboard.php' : 'index.php'; ?>">
-                <i class="fas fa-car me-2"></i>RideMax
+                <i class="fas fa-bicycle me-2"></i>RideMax
             </a>
             
             <!-- Mobile menu toggle -->
@@ -95,7 +95,7 @@ $currentUser = isLoggedIn() ? getCurrentUser() : null;
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="order.php">
-                                <i class="fas fa-car me-1"></i>Pesan Perjalanan
+                                <i class="fas fa-bicycle me-1"></i>Pesan Perjalanan
                             </a>
                         </li>
                         <li class="nav-item">
