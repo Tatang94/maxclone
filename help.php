@@ -39,15 +39,15 @@ require_once 'includes/header.php';
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="faq1">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
-                                Bagaimana cara memesan perjalanan?
+                                Bagaimana cara memesan makanan?
                             </button>
                         </h2>
                         <div id="collapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
                                 <ol>
-                                    <li>Buka menu "Pesan Perjalanan"</li>
-                                    <li>Masukkan lokasi penjemputan dan tujuan</li>
-                                    <li>Pilih jenis kendaraan (Bike, Car, atau Delivery)</li>
+                                    <li>Buka menu "Pesan Makanan"</li>
+                                    <li>Masukkan alamat pengiriman dan tujuan</li>
+                                    <li>Pilih menu makanan dari merchant yang tersedia</li>
                                     <li>Pilih metode pembayaran (Saldo Dompet atau Tunai)</li>
                                     <li>Konfirmasi pesanan dan tunggu driver</li>
                                 </ol>

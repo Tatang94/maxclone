@@ -127,40 +127,38 @@ include 'includes/header.php';
 
             <!-- Menu Makanan -->
             <div class="food-section">
-                <div class="food-options d-flex gap-2 mb-4">
-                    <div class="food-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center food-card active" data-type="nasi" data-price="15000">
-                        <div class="food-icon mb-2">
-                            <i class="fas fa-bowl-rice text-warning" style="font-size: 2.5rem;"></i>
-                        </div>
-                        <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Nasi</h6>
-                        <div class="price-info">
-                            <span class="text-muted" style="font-size: 10px;">Mulai dari</span><br>
-                            <span class="fw-bold text-warning" id="nasi-price" style="font-size: 12px;">Rp 15.000</span>
-                        </div>
-                    </div>
-                    
-                    <div class="food-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center food-card" data-type="mie" data-price="12000">
-                        <div class="food-icon mb-2">
-                            <i class="fas fa-bowl-food text-primary" style="font-size: 2.5rem;"></i>
-                        </div>
-                        <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Mie</h6>
-                        <div class="price-info">
-                            <span class="text-muted" style="font-size: 10px;">Mulai dari</span><br>
-                            <span class="fw-bold text-primary" id="mie-price" style="font-size: 12px;">Rp 12.000</span>
-                        </div>
-                    </div>
-                    
-                    <div class="food-option flex-fill bg-white rounded-3 shadow-sm p-3 text-center food-card" data-type="minuman" data-price="8000">
-                        <div class="food-icon mb-2">
-                            <i class="fas fa-glass-water text-success" style="font-size: 2.5rem;"></i>
-                        </div>
-                        <h6 class="mb-1" style="font-weight: 600; font-size: 14px;">Minuman</h6>
-                        <div class="price-info">
-                            <span class="text-muted" style="font-size: 10px;">Mulai dari</span><br>
-                            <span class="fw-bold text-success" id="minuman-price" style="font-size: 12px;">Rp 8.000</span>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0" style="font-weight: 500; font-size: 14px;">Pilih Menu Makanan</h6>
+                    <div class="category-filter">
+                        <select class="form-select form-select-sm" id="categoryFilter" style="font-size: 12px; width: auto;">
+                            <option value="">Semua Kategori</option>
+                            <option value="nasi">Nasi</option>
+                            <option value="mie">Mie</option>
+                            <option value="minuman">Minuman</option>
+                            <option value="snack">Snack</option>
+                            <option value="dessert">Dessert</option>
+                        </select>
                     </div>
                 </div>
+                
+                <div id="foodList" class="row g-2 mb-4">
+                    <!-- Food items will be loaded here dynamically -->
+                </div>
+                
+                <div id="loadingFood" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Memuat menu...</span>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">Memuat menu makanan...</small>
+                    </div>
+                </div>
+                
+                <div id="noFood" class="text-center py-4 d-none">
+                    <i class="fas fa-utensils fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-0">Tidak ada menu makanan tersedia</p>
+                </div>
+            </div>
                 
                 <!-- Payment Method Selection -->
                 <div class="payment-section bg-white rounded-3 shadow-sm mb-3" style="padding: 15px;">
@@ -402,6 +400,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load wallet balance
     loadWalletBalance();
     
+    // Load food menu from database
+    loadFoodMenu();
+    
     // Initialize default pricing (5km default distance)
     updatePricing(5);
     
@@ -409,6 +410,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('useCurrentLocation').addEventListener('click', function() {
         getCurrentLocationForMap();
     });
+    
+    // Category filter event listener
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', function() {
+            loadFoodMenu(this.value);
+        });
+    }
     
     // Form submission - show confirmation modal
     document.getElementById('orderForm').addEventListener('submit', function(e) {
@@ -512,6 +521,134 @@ function loadWalletBalance() {
     .catch(error => {
         console.error('Error loading balance:', error);
         document.getElementById('wallet-balance-display').textContent = 'Gagal memuat saldo';
+    });
+}
+
+// Load food menu from database
+function loadFoodMenu(category = '') {
+    const loadingEl = document.getElementById('loadingFood');
+    const noFoodEl = document.getElementById('noFood');
+    const foodListEl = document.getElementById('foodList');
+    
+    loadingEl.style.display = 'block';
+    noFoodEl.classList.add('d-none');
+    foodListEl.innerHTML = '';
+    
+    const url = category ? `process/get_food_menu.php?category=${encodeURIComponent(category)}` : 'process/get_food_menu.php';
+    
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        loadingEl.style.display = 'none';
+        
+        if (data.success && data.data.length > 0) {
+            displayFoodItems(data.data);
+        } else {
+            noFoodEl.classList.remove('d-none');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading food menu:', error);
+        loadingEl.style.display = 'none';
+        noFoodEl.classList.remove('d-none');
+    });
+}
+
+// Display food items
+function displayFoodItems(foodItems) {
+    const foodListEl = document.getElementById('foodList');
+    foodListEl.innerHTML = '';
+    
+    foodItems.forEach((item, index) => {
+        const categoryColors = {
+            'nasi': { bg: 'warning', icon: 'bowl-rice' },
+            'mie': { bg: 'primary', icon: 'bowl-food' },
+            'minuman': { bg: 'info', icon: 'glass-water' },
+            'snack': { bg: 'secondary', icon: 'cookie-bite' },
+            'dessert': { bg: 'pink', icon: 'ice-cream' }
+        };
+        
+        const colorScheme = categoryColors[item.category] || { bg: 'secondary', icon: 'utensils' };
+        const isActive = index === 0 ? 'active' : '';
+        
+        const foodCard = `
+            <div class="col-12">
+                <div class="food-card bg-white rounded-3 shadow-sm p-3 ${isActive}" 
+                     data-type="${item.category}" 
+                     data-price="${item.price}" 
+                     data-id="${item.id}"
+                     data-name="${item.name}"
+                     data-merchant="${item.merchant_name}"
+                     data-preparation-time="${item.preparation_time}">
+                    <div class="row g-0">
+                        <div class="col-3">
+                            <div class="food-image-container">
+                                <img src="${item.image_url}" 
+                                     class="img-fluid rounded" 
+                                     alt="${item.name}"
+                                     style="width: 100%; height: 60px; object-fit: cover;"
+                                     onerror="this.src='https://via.placeholder.com/80x60/6c757d/ffffff?text=No+Image'">
+                            </div>
+                        </div>
+                        <div class="col-9">
+                            <div class="d-flex justify-content-between align-items-start h-100">
+                                <div class="flex-grow-1 ps-3">
+                                    <h6 class="mb-1" style="font-size: 13px; font-weight: 600;">${item.name}</h6>
+                                    <p class="text-muted mb-1" style="font-size: 11px;">${item.description || 'Tidak ada deskripsi'}</p>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-${colorScheme.bg}" style="font-size: 9px;">
+                                            <i class="fas fa-${colorScheme.icon} me-1"></i>${item.category}
+                                        </span>
+                                        <small class="text-muted" style="font-size: 10px;">
+                                            <i class="fas fa-clock"></i> ${item.preparation_time} min
+                                        </small>
+                                    </div>
+                                    <div class="mt-1">
+                                        <small class="text-muted" style="font-size: 10px;">
+                                            <i class="fas fa-store"></i> ${item.merchant_name}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold text-${colorScheme.bg}" style="font-size: 12px;">
+                                        Rp ${new Intl.NumberFormat('id-ID').format(item.price)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        foodListEl.innerHTML += foodCard;
+    });
+    
+    // Add click event listeners to food cards
+    setupFoodCardListeners();
+    
+    // Update pricing for first item
+    if (foodItems.length > 0) {
+        updatePricing(5, foodItems[0].price);
+    }
+}
+
+// Setup food card click listeners
+function setupFoodCardListeners() {
+    const foodCards = document.querySelectorAll('.food-card');
+    foodCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove active class from all cards
+            foodCards.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked card
+            this.classList.add('active');
+            
+            // Update pricing
+            const price = parseInt(this.dataset.price);
+            const currentDistance = parseFloat(document.getElementById('distance').textContent) || 5;
+            updatePricing(currentDistance, price);
+        });
     });
 }
 

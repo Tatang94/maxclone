@@ -173,7 +173,10 @@ $currentUser = isLoggedIn() ? getCurrentUser() : null;
                         <i class="fas fa-home me-3"></i>Beranda
                     </a>
                     <a href="order.php" class="list-group-item list-group-item-action">
-                        <i class="fas fa-car me-3"></i>Pesan Perjalanan
+                        <i class="fas fa-utensils me-3"></i>Pesan Makanan
+                    </a>
+                    <a href="merchant.php" class="list-group-item list-group-item-action">
+                        <i class="fas fa-store me-3"></i>Merchant Panel
                     </a>
                     <a href="wallet.php" class="list-group-item list-group-item-action">
                         <i class="fas fa-wallet me-3"></i>Dompet Digital
