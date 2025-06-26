@@ -11,39 +11,47 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
+// Get user info
+$user_stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$user_stmt->execute([$user_id]);
+$user = $user_stmt->fetch();
+
 // Get user's merchant info
-$stmt = $pdo->prepare("SELECT * FROM merchants WHERE email = (SELECT email FROM users WHERE id = ?)");
+$stmt = $pdo->prepare("SELECT * FROM merchants WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $merchant = $stmt->fetch();
 
 // If no merchant account, create one
 if (!$merchant) {
-    $user_stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-    $user_stmt->execute([$user_id]);
-    $user = $user_stmt->fetch();
+    $create_merchant = $pdo->prepare("INSERT INTO merchants (user_id, business_name, business_address, business_phone, business_category) VALUES (?, ?, ?, ?, ?)");
+    $create_merchant->execute([
+        $user_id,
+        $user['name'] . "'s Kitchen",
+        'Alamat belum diisi',
+        $user['phone'] ?? '',
+        'Makanan & Minuman'
+    ]);
     
-    if ($user) {
-        $create_merchant = $pdo->prepare("INSERT INTO merchants (name, email, phone, address) VALUES (?, ?, ?, ?)");
-        $create_merchant->execute([
-            $user['name'] . "'s Kitchen",
-            $user['email'],
-            $user['phone'] ?? '',
-            'Alamat belum diisi'
-        ]);
-        
-        // Get the newly created merchant
-        $stmt = $pdo->prepare("SELECT * FROM merchants WHERE email = ?");
-        $stmt->execute([$user['email']]);
-        $merchant = $stmt->fetch();
-    }
+    // Get the newly created merchant
+    $stmt = $pdo->prepare("SELECT * FROM merchants WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $merchant = $stmt->fetch();
 }
 
-// Get merchant's food items
-$food_items = [];
+// Get merchant's menu items
+$menu_items = [];
 if ($merchant) {
-    $stmt = $pdo->prepare("SELECT * FROM food_items WHERE merchant_id = ? ORDER BY created_at DESC");
+    $stmt = $pdo->prepare("SELECT mi.*, fc.name as category_name FROM menu_items mi LEFT JOIN food_categories fc ON mi.category_id = fc.id WHERE mi.merchant_id = ? ORDER BY mi.created_at DESC");
     $stmt->execute([$merchant['id']]);
-    $food_items = $stmt->fetchAll();
+    $menu_items = $stmt->fetchAll();
+}
+
+// Get food categories
+$categories = [];
+if ($merchant) {
+    $stmt = $pdo->prepare("SELECT * FROM food_categories WHERE merchant_id = ? ORDER BY sort_order ASC");
+    $stmt->execute([$merchant['id']]);
+    $categories = $stmt->fetchAll();
 }
 
 $title = "Merchant - Kelola Menu Makanan";
@@ -56,10 +64,10 @@ include 'includes/header.php';
     <div class="bg-primary text-white p-4">
         <div class="d-flex align-items-center justify-content-between">
             <div>
-                <h4 class="mb-1">🍽️ <?php echo htmlspecialchars($merchant['name'] ?? 'Merchant Panel'); ?></h4>
+                <h4 class="mb-1">🍽️ <?php echo htmlspecialchars($merchant['business_name'] ?? 'Merchant Panel'); ?></h4>
                 <p class="mb-0 opacity-75">Kelola menu makanan Anda</p>
             </div>
-            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addFoodModal">
+            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addMenuModal">
                 <i class="fas fa-plus"></i> Tambah Menu
             </button>
         </div>
@@ -71,7 +79,7 @@ include 'includes/header.php';
             <div class="card bg-success text-white">
                 <div class="card-body text-center">
                     <i class="fas fa-utensils fa-2x mb-2"></i>
-                    <h5><?php echo count($food_items); ?></h5>
+                    <h5><?php echo count($menu_items); ?></h5>
                     <small>Total Menu</small>
                 </div>
             </div>
@@ -80,7 +88,7 @@ include 'includes/header.php';
             <div class="card bg-info text-white">
                 <div class="card-body text-center">
                     <i class="fas fa-check-circle fa-2x mb-2"></i>
-                    <h5><?php echo count(array_filter($food_items, function($item) { return $item['is_available']; })); ?></h5>
+                    <h5><?php echo count(array_filter($menu_items, function($item) { return $item['is_available']; })); ?></h5>
                     <small>Menu Tersedia</small>
                 </div>
             </div>
@@ -91,23 +99,23 @@ include 'includes/header.php';
     <div class="p-3">
         <h5 class="mb-3">Daftar Menu Makanan</h5>
         
-        <?php if (empty($food_items)): ?>
+        <?php if (empty($menu_items)): ?>
             <div class="text-center py-5">
                 <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
                 <h6>Belum Ada Menu</h6>
                 <p class="text-muted">Tambahkan menu makanan pertama Anda</p>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFoodModal">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMenuModal">
                     <i class="fas fa-plus"></i> Tambah Menu
                 </button>
             </div>
         <?php else: ?>
             <div class="row g-3">
-                <?php foreach ($food_items as $item): ?>
+                <?php foreach ($menu_items as $item): ?>
                     <div class="col-12">
                         <div class="card food-item-card">
                             <div class="row g-0">
                                 <div class="col-4">
-                                    <img src="<?php echo htmlspecialchars($item['image_url'] ?: 'https://via.placeholder.com/150x100/6c757d/ffffff?text=No+Image'); ?>" 
+                                    <img src="<?php echo htmlspecialchars($item['image_path'] ?: 'https://via.placeholder.com/150x100/6c757d/ffffff?text=No+Image'); ?>" 
                                          class="img-fluid rounded-start h-100 object-fit-cover" alt="<?php echo htmlspecialchars($item['name']); ?>">
                                 </div>
                                 <div class="col-8">
@@ -117,8 +125,8 @@ include 'includes/header.php';
                                                 <h6 class="card-title mb-1"><?php echo htmlspecialchars($item['name']); ?></h6>
                                                 <p class="card-text small text-muted mb-2"><?php echo htmlspecialchars($item['description']); ?></p>
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge bg-<?php echo $item['category'] == 'nasi' ? 'warning' : ($item['category'] == 'mie' ? 'primary' : 'info'); ?>">
-                                                        <?php echo ucfirst($item['category']); ?>
+                                                    <span class="badge bg-primary">
+                                                        <?php echo htmlspecialchars($item['category_name'] ?: 'Umum'); ?>
                                                     </span>
                                                     <small class="text-muted">
                                                         <i class="fas fa-clock"></i> <?php echo $item['preparation_time']; ?> menit
@@ -128,14 +136,14 @@ include 'includes/header.php';
                                             <div class="text-end">
                                                 <div class="h6 text-primary mb-1">Rp <?php echo number_format($item['price'], 0, ',', '.'); ?></div>
                                                 <div class="btn-group btn-group-sm">
-                                                    <button class="btn btn-outline-primary btn-sm" onclick="editFood(<?php echo $item['id']; ?>)">
+                                                    <button class="btn btn-outline-primary btn-sm" onclick="editMenuItem(<?php echo $item['id']; ?>)">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
                                                     <button class="btn btn-outline-<?php echo $item['is_available'] ? 'success' : 'secondary'; ?> btn-sm" 
                                                             onclick="toggleAvailability(<?php echo $item['id']; ?>, <?php echo $item['is_available'] ? 'false' : 'true'; ?>)">
                                                         <i class="fas fa-<?php echo $item['is_available'] ? 'eye' : 'eye-slash'; ?>"></i>
                                                     </button>
-                                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteFood(<?php echo $item['id']; ?>)">
+                                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteMenuItem(<?php echo $item['id']; ?>)">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </div>
@@ -152,20 +160,20 @@ include 'includes/header.php';
     </div>
 </div>
 
-<!-- Add Food Modal -->
-<div class="modal fade" id="addFoodModal" tabindex="-1">
+<!-- Add Menu Modal -->
+<div class="modal fade" id="addMenuModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Tambah Menu Makanan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="addFoodForm" enctype="multipart/form-data">
+            <form id="addMenuForm" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <input type="hidden" name="merchant_id" value="<?php echo $merchant['id']; ?>">
+                    <input type="hidden" name="action" value="add_menu_item">
                     
                     <div class="mb-3">
-                        <label class="form-label">Nama Makanan</label>
+                        <label class="form-label">Nama Menu</label>
                         <input type="text" class="form-control" name="name" required>
                     </div>
                     
@@ -184,13 +192,11 @@ include 'includes/header.php';
                         <div class="col-6">
                             <div class="mb-3">
                                 <label class="form-label">Kategori</label>
-                                <select class="form-select" name="category" required>
+                                <select class="form-select" name="category_id">
                                     <option value="">Pilih Kategori</option>
-                                    <option value="nasi">Nasi</option>
-                                    <option value="mie">Mie</option>
-                                    <option value="minuman">Minuman</option>
-                                    <option value="snack">Snack</option>
-                                    <option value="dessert">Dessert</option>
+                                    <?php foreach ($categories as $category): ?>
+                                        <option value="<?php echo $category['id']; ?>"><?php echo htmlspecialchars($category['name']); ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
@@ -202,15 +208,55 @@ include 'includes/header.php';
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">URL Gambar</label>
-                        <input type="url" class="form-control" name="image_url" placeholder="https://example.com/image.jpg">
-                        <small class="form-text text-muted">Masukkan URL gambar makanan</small>
+                        <label class="form-label">Upload Foto Menu</label>
+                        <input type="file" class="form-control" name="image" accept="image/*">
+                        <small class="form-text text-muted">Upload gambar makanan (JPG, PNG, GIF, maksimal 5MB)</small>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <i class="fas fa-plus"></i> Tambah Kategori Baru
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Tambah Menu</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="spinner-border spinner-border-sm d-none me-2" role="status"></span>
+                        Tambah Menu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Kategori</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addCategoryForm">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="add_category">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Nama Kategori</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Deskripsi</label>
+                        <textarea class="form-control" name="description" rows="2"></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Tambah Kategori</button>
                 </div>
             </form>
         </div>
@@ -218,8 +264,44 @@ include 'includes/header.php';
 </div>
 
 <script>
-// Add food form submission
-document.getElementById('addFoodForm').addEventListener('submit', function(e) {
+// Add menu form submission
+document.getElementById('addMenuForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    
+    submitBtn.disabled = true;
+    spinner.classList.remove('d-none');
+    
+    const formData = new FormData(this);
+    
+    fetch('process/merchant_process.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addMenuModal')).hide();
+            showNotification(data.message, 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Terjadi kesalahan saat menambah menu', 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        spinner.classList.add('d-none');
+    });
+});
+
+// Add category form submission
+document.getElementById('addCategoryForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const formData = new FormData(this);
@@ -231,23 +313,24 @@ document.getElementById('addFoodForm').addEventListener('submit', function(e) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('addFoodModal')).hide();
-            location.reload();
+            bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
+            showNotification(data.message, 'success');
+            setTimeout(() => location.reload(), 1000);
         } else {
-            alert('Error: ' + data.message);
+            showNotification(data.message, 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Terjadi kesalahan saat menambah menu');
+        showNotification('Terjadi kesalahan saat menambah kategori', 'error');
     });
 });
 
-// Toggle food availability
-function toggleAvailability(foodId, newStatus) {
+// Toggle menu item availability
+function toggleAvailability(itemId, newStatus) {
     const formData = new FormData();
-    formData.append('action', 'toggle_availability');
-    formData.append('food_id', foodId);
+    formData.append('action', 'update_menu_item');
+    formData.append('item_id', itemId);
     formData.append('is_available', newStatus);
     
     fetch('process/merchant_process.php', {
@@ -257,14 +340,73 @@ function toggleAvailability(foodId, newStatus) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            location.reload();
+            showNotification(data.message, 'success');
+            setTimeout(() => location.reload(), 500);
         } else {
-            alert('Error: ' + data.message);
+            showNotification(data.message, 'error');
         }
     });
 }
 
-// Delete food item
+// Edit menu item
+function editMenuItem(itemId) {
+    // For now, just show a simple prompt - could be enhanced with a modal
+    const newName = prompt('Masukkan nama menu baru:');
+    if (newName) {
+        const formData = new FormData();
+        formData.append('action', 'update_menu_item');
+        formData.append('item_id', itemId);
+        formData.append('name', newName);
+        
+        fetch('process/merchant_process.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                setTimeout(() => location.reload(), 500);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        });
+    }
+}
+
+// Delete menu item
+function deleteMenuItem(itemId) {
+    if (confirm('Apakah Anda yakin ingin menghapus menu ini?')) {
+        const formData = new FormData();
+        formData.append('action', 'delete_menu_item');
+        formData.append('item_id', itemId);
+        
+        fetch('process/merchant_process.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                setTimeout(() => location.reload(), 500);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        });
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Use existing notification system from main script
+    if (typeof window.showNotification === 'function') {
+        window.showNotification(message, type);
+    } else {
+        // Fallback to alert
+        alert(message);
+    }
+}
 function deleteFood(foodId) {
     if (confirm('Yakin ingin menghapus menu ini?')) {
         const formData = new FormData();
