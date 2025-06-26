@@ -84,6 +84,39 @@ include 'includes/header.php';
         </div>
     </div>
 
+    <!-- Menu Makanan Section -->
+    <div class="food-menu-section p-3 bg-light">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">🍽️ Menu Makanan</h5>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary" onclick="refreshFoodMenu()">
+                    <i class="fas fa-refresh"></i>
+                </button>
+                <a href="merchant.php" class="btn btn-sm btn-primary">
+                    <i class="fas fa-store"></i> Merchant
+                </a>
+            </div>
+        </div>
+        
+        <div class="food-categories mb-3">
+            <div class="d-flex gap-2 overflow-auto pb-2">
+                <button class="btn btn-sm btn-primary category-btn active" data-category="">Semua</button>
+                <button class="btn btn-sm btn-outline-primary category-btn" data-category="makanan">Makanan</button>
+                <button class="btn btn-sm btn-outline-primary category-btn" data-category="minuman">Minuman</button>
+                <button class="btn btn-sm btn-outline-primary category-btn" data-category="snack">Snack</button>
+            </div>
+        </div>
+        
+        <div id="foodMenuContainer" class="row g-3">
+            <div class="col-12 text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Memuat menu makanan...</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Driver Mode Toggle (if user is also a driver) -->
     <?php if ($user['is_driver'] == 1): ?>
     <div class="driver-mode p-3 bg-light">
@@ -99,12 +132,16 @@ include 'includes/header.php';
 </div>
 
 <script>
-// Load recent orders on page load
+// Load recent orders and food menu on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadRecentOrders();
+    loadFoodMenu();
     
     // Auto-refresh every 30 seconds
     setInterval(loadRecentOrders, 30000);
+    
+    // Setup category filter buttons
+    setupCategoryFilters();
 });
 
 function loadRecentOrders() {
@@ -147,6 +184,102 @@ function getStatusColor(status) {
         'cancelled': 'danger'
     };
     return colors[status] || 'secondary';
+}
+
+// Setup category filter buttons
+function setupCategoryFilters() {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active state
+            document.querySelectorAll('.category-btn').forEach(b => {
+                b.classList.remove('btn-primary', 'active');
+                b.classList.add('btn-outline-primary');
+            });
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-primary', 'active');
+            
+            // Load menu with filter
+            const category = this.dataset.category;
+            loadFoodMenu(category);
+        });
+    });
+}
+
+// Load food menu
+function loadFoodMenu(category = '') {
+    const container = document.getElementById('foodMenuContainer');
+    
+    // Show loading state
+    container.innerHTML = `
+        <div class="col-12 text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Memuat menu makanan...</p>
+        </div>
+    `;
+    
+    const url = category ? `process/get_food_menu.php?category=${encodeURIComponent(category)}` : 'process/get_food_menu.php';
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                container.innerHTML = data.data.map(item => `
+                    <div class="col-6">
+                        <div class="card food-item-card h-100">
+                            <div class="position-relative">
+                                <img src="${item.image_url}" class="card-img-top" alt="${item.name}" style="height: 120px; object-fit: cover;">
+                                <span class="badge bg-primary position-absolute top-0 end-0 m-2">${item.category}</span>
+                            </div>
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1 text-truncate">${item.name}</h6>
+                                <p class="card-text small text-muted mb-1 text-truncate">${item.description}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold">Rp ${parseInt(item.price).toLocaleString('id-ID')}</span>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> ${item.preparation_time}m
+                                    </small>
+                                </div>
+                                <small class="text-muted d-block text-truncate">
+                                    <i class="fas fa-store"></i> ${item.merchant_name}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-4">
+                        <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+                        <h6>Belum Ada Menu</h6>
+                        <p class="text-muted">Merchant belum menambahkan menu makanan</p>
+                        <a href="merchant.php" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Kelola Menu Merchant
+                        </a>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading food menu:', error);
+            container.innerHTML = `
+                <div class="col-12 text-center py-4">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                    <p class="text-muted">Gagal memuat menu makanan</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="loadFoodMenu()">
+                        <i class="fas fa-refresh"></i> Coba Lagi
+                    </button>
+                </div>
+            `;
+        });
+}
+
+// Refresh food menu
+function refreshFoodMenu() {
+    const activeCategory = document.querySelector('.category-btn.active');
+    const category = activeCategory ? activeCategory.dataset.category : '';
+    loadFoodMenu(category);
 }
 </script>
 
