@@ -57,7 +57,7 @@ try {
         jsonResponse(['success' => false, 'message' => 'Pickup and destination cannot be the same']);
     }
     
-    if (!in_array($vehicleType, ['economy', 'comfort', 'premium'])) {
+    if (!in_array($vehicleType, ['economy', 'comfort', 'premium', 'delivery'])) {
         jsonResponse(['success' => false, 'message' => 'Invalid vehicle type']);
     }
     
