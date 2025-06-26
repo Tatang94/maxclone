@@ -33,7 +33,7 @@ CREATE TABLE users (
 -- Table structure for table drivers
 CREATE TABLE drivers (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL,
     license_number VARCHAR(50) NOT NULL UNIQUE,
     vehicle_make VARCHAR(50) NOT NULL,
     vehicle_model VARCHAR(50) NOT NULL,
@@ -54,8 +54,8 @@ CREATE TABLE drivers (
 -- Table structure for table orders
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id),
-    driver_id INTEGER NULL REFERENCES drivers(id),
+    user_id INTEGER NOT NULL,
+    driver_id INTEGER NULL,
     pickup_address TEXT NOT NULL,
     pickup_lat DECIMAL(10, 8) NOT NULL,
     pickup_lng DECIMAL(11, 8) NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE orders (
 -- Table structure for table payments
 CREATE TABLE payments (
     id SERIAL PRIMARY KEY,
-    order_id INTEGER NOT NULL REFERENCES orders(id),
+    order_id INTEGER NOT NULL,
     amount DECIMAL(8, 2) NOT NULL,
     method payment_method_enum NOT NULL,
     status payment_status_enum NOT NULL DEFAULT 'pending',
@@ -98,9 +98,9 @@ CREATE TABLE payments (
 -- Table structure for table ratings
 CREATE TABLE ratings (
     id SERIAL PRIMARY KEY,
-    order_id INTEGER NOT NULL REFERENCES orders(id),
-    user_id INTEGER NOT NULL REFERENCES users(id),
-    driver_id INTEGER NOT NULL REFERENCES drivers(id),
+    order_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    driver_id INTEGER NOT NULL,
     user_rating INTEGER CHECK (user_rating >= 1 AND user_rating <= 5),
     driver_rating INTEGER CHECK (driver_rating >= 1 AND driver_rating <= 5),
     user_comment TEXT NULL,
@@ -111,7 +111,7 @@ CREATE TABLE ratings (
 -- Table structure for table remember_tokens
 CREATE TABLE remember_tokens (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL,
     token VARCHAR(255) NOT NULL UNIQUE,
     expires_at TIMESTAMP NOT NULL,
     used_at TIMESTAMP NULL,
@@ -121,7 +121,7 @@ CREATE TABLE remember_tokens (
 -- Table structure for table activity_logs
 CREATE TABLE activity_logs (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
+    user_id INTEGER NULL,
     action VARCHAR(100) NOT NULL,
     description TEXT NULL,
     ip_address INET NULL,

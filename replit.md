@@ -126,7 +126,6 @@ RideMax is a comprehensive ride-hailing super app built with PHP, featuring mobi
   - SQLite database operations stable and secure
 ✓ Confirmed Indonesian language interface fully functional across all pages
 ✓ Payment system integrated with PayDisini API for QRIS transactions
-✓ Database schema optimized for SQLite with proper foreign key constraints
 ✓ Session management and security features operational
 ✓ Server running stable on PHP 8.2 with port 5000 accessibility
 ✓ All progress tracker items completed for Replit environment migration
@@ -135,18 +134,10 @@ RideMax is a comprehensive ride-hailing super app built with PHP, featuring mobi
 ✓ Created complete PostgreSQL schema with all required tables and relationships
 ✓ Implemented database-agnostic functions for cross-compatibility
 ✓ PostgreSQL now serves as primary database with enhanced performance
-✓ Fixed "Invalid vehicle type" error by adding support for all vehicle types (bike, car, delivery)
-✓ Created WalletManager class for complete digital wallet functionality
-✓ Implemented order cancellation system with automatic refund processing
-✓ Fixed PostgreSQL boolean comparison issues and column name mismatches
-✓ Added comprehensive auto-login system for seamless testing experience
-✓ All booking features fully operational: bike orders (ID #4), car orders (ID #5), delivery orders
-✓ Order cancellation tested and working with proper wallet refund integration
-✓ Added PostgreSQL database with hybrid SQLite fallback system (June 26, 2025)
-✓ Configured automatic database detection and connection switching
-✓ Created complete PostgreSQL schema with all required tables and relationships
-✓ Implemented database-agnostic functions for cross-compatibility
-✓ PostgreSQL now serves as primary database with enhanced performance
+✓ Removed all foreign key constraints from database schema per user request (June 26, 2025)
+✓ Updated PostgreSQL schema to use simple integer references without foreign keys
+✓ Database structure simplified for better compatibility and user preference
+✓ All database operations working without referential integrity constraints
 
 ## User Preferences
 
