@@ -460,49 +460,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const destination = document.getElementById('destination').value;
         const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
         
+        // Disable button to prevent double submission
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
+        
+        // Prepare order data
         const orderData = {
+            food_id: selectedFood.dataset.id,
+            food_name: selectedFood.dataset.name,
+            food_type: selectedFood.dataset.type,
+            price: selectedFood.dataset.price,
+            merchant_name: selectedFood.dataset.merchant,
+            preparation_time: selectedFood.dataset.preparationTime,
             pickup_location: pickupLocation,
             destination: destination,
-            vehicle_type: selectedFood.dataset.type,
-            estimated_price: selectedFood.dataset.price,
             payment_method: paymentMethod
         };
         
-        // Disable button and show loading
-        const confirmBtn = document.getElementById('confirmOrder');
-        const originalText = confirmBtn.textContent;
-        confirmBtn.disabled = true;
-        confirmBtn.textContent = 'MEMPROSES...';
-        
-        // Submit order via AJAX
-        fetch('process/order_process.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                action: 'create_order',
-                ...orderData
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Close modal and redirect to order status
-                bootstrap.Modal.getInstance(document.getElementById('orderConfirmModal')).hide();
-                window.location.href = 'order_status.php?order_id=' + data.order_id;
-            } else {
-                alert(data.message || 'Terjadi kesalahan saat memesan');
-                confirmBtn.disabled = false;
-                confirmBtn.textContent = originalText;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan koneksi');
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = originalText;
-        });
+        // Submit order
+        submitFoodOrder(orderData);
     });
 });
 
@@ -649,6 +625,50 @@ function setupFoodCardListeners() {
             const currentDistance = parseFloat(document.getElementById('distance').textContent) || 5;
             updatePricing(currentDistance, price);
         });
+    });
+}
+
+// Submit food order to database
+function submitFoodOrder(orderData) {
+    const confirmBtn = document.getElementById('confirmOrder');
+    const originalText = confirmBtn.textContent;
+    
+    // Submit order via AJAX
+    fetch('process/order_process.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            action: 'create_food_order',
+            food_id: orderData.food_id,
+            food_name: orderData.food_name,
+            food_type: orderData.food_type,
+            merchant_name: orderData.merchant_name,
+            preparation_time: orderData.preparation_time,
+            pickup_location: orderData.pickup_location,
+            destination: orderData.destination,
+            estimated_price: orderData.price,
+            payment_method: orderData.payment_method
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal and redirect to order status
+            bootstrap.Modal.getInstance(document.getElementById('orderConfirmModal')).hide();
+            window.location.href = 'order_status.php?order_id=' + data.order_id;
+        } else {
+            alert(data.message || 'Terjadi kesalahan saat memesan makanan');
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan koneksi');
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalText;
     });
 }
 

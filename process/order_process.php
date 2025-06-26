@@ -56,12 +56,31 @@ try {
     $userId = $_SESSION['user_id'];
     
     // Get and validate input
+    $action = $_POST['action'] ?? 'create_order';
     $pickupLocation = trim($_POST['pickup_location'] ?? '');
     $destination = trim($_POST['destination'] ?? '');
     $vehicleType = $_POST['vehicle_type'] ?? 'economy';
     $paymentMethod = $_POST['payment_method'] ?? 'cash';
     $notes = trim($_POST['notes'] ?? '');
     $estimatedPrice = (int)($_POST['estimated_price'] ?? 0);
+    
+    // Food order specific data
+    $foodId = isset($_POST['food_id']) ? (int)$_POST['food_id'] : null;
+    $foodName = trim($_POST['food_name'] ?? '');
+    $foodType = trim($_POST['food_type'] ?? '');
+    $merchantName = trim($_POST['merchant_name'] ?? '');
+    $preparationTime = (int)($_POST['preparation_time'] ?? 15);
+    
+    // If it's a food order, set vehicle type to delivery and create notes
+    if ($action === 'create_food_order') {
+        $vehicleType = 'delivery';
+        $notes = "Pesanan makanan: $foodName dari $merchantName (Waktu persiapan: {$preparationTime} menit)";
+        
+        // Additional validation for food orders
+        if ($foodId <= 0 || empty($foodName) || empty($merchantName)) {
+            jsonResponse(['success' => false, 'message' => 'Data pesanan makanan tidak lengkap']);
+        }
+    }
     
     // Schedule options
     $scheduleLater = isset($_POST['schedule_later']);
@@ -169,6 +188,18 @@ try {
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ];
+        
+        // Add food order specific data if this is a food order
+        if ($action === 'create_food_order') {
+            $orderData['food_id'] = $foodId;
+            $orderData['food_name'] = $foodName;
+            $orderData['food_type'] = $foodType;
+            $orderData['merchant_name'] = $merchantName;
+            $orderData['preparation_time'] = $preparationTime;
+            $orderData['order_type'] = 'food_delivery';
+        } else {
+            $orderData['order_type'] = 'transport';
+        }
         
         $orderDbId = insertData('orders', $orderData);
         
