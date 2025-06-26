@@ -2,6 +2,7 @@
 session_start();
 require_once 'includes/db.php';
 require_once 'includes/functions.php';
+require_once 'includes/WalletManager.php';
 require_once 'includes/paydisini.php';
 
 // Cek login
