@@ -23,6 +23,15 @@ if (!isLoggedIn()) {
 }
 
 $user = getCurrentUser();
+
+// Handle case when user data is not available
+if (!$user || !is_array($user)) {
+    // Logout and redirect to login if user data is corrupted
+    session_destroy();
+    header('Location: login.php');
+    exit();
+}
+
 $pageTitle = 'RideMax - Beranda';
 include 'includes/header.php';
 ?>
