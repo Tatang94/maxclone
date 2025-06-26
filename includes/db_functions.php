@@ -1,73 +1,14 @@
 <?php
 /**
- * Database Connection Configuration
- * RideMax Super App - Hybrid PostgreSQL/SQLite Support
+ * Common Database Functions
+ * Works with both SQLite and PostgreSQL
  */
-
-// Check if PostgreSQL is available
-$databaseUrl = $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL');
-$pdo = null;
-$databaseType = 'sqlite';
-
-if (!empty($databaseUrl)) {
-    // Try PostgreSQL connection
-    $dbConfig = parse_url($databaseUrl);
-    
-    $pdo_options = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false
-    ];
-    
-    try {
-        $host = $dbConfig['host'];
-        $port = $dbConfig['port'] ?? 5432;
-        $dbname = ltrim($dbConfig['path'], '/');
-        $username = $dbConfig['user'];
-        $password = $dbConfig['pass'];
-        
-        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-        $pdo = new PDO($dsn, $username, $password, $pdo_options);
-        
-        $databaseType = 'postgresql';
-        
-    } catch (PDOException $e) {
-        error_log("PostgreSQL connection failed, using SQLite: " . $e->getMessage());
-        $pdo = null;
-    }
-}
-
-// Fallback to SQLite if PostgreSQL failed or not available
-if (!$pdo) {
-    $databaseType = 'sqlite';
-    $dbFile = __DIR__ . '/../database/ridemax.db';
-    
-    if (!file_exists($dbFile)) {
-        $dbDir = dirname($dbFile);
-        if (!file_exists($dbDir)) {
-            mkdir($dbDir, 0755, true);
-        }
-        require_once __DIR__ . '/../database/sqlite_setup.php';
-    }
-    
-    $pdo_options = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false
-    ];
-    
-    try {
-        $dsn = "sqlite:$dbFile";
-        $pdo = new PDO($dsn, null, null, $pdo_options);
-        $pdo->exec('PRAGMA foreign_keys = ON');
-    } catch (PDOException $e) {
-        error_log("Database connection failed: " . $e->getMessage());
-        die("Koneksi database gagal. Silakan coba lagi nanti.");
-    }
-}
 
 /**
  * Execute a query with error handling
+ * @param string $query SQL query
+ * @param array $params Parameters for prepared statement
+ * @return mixed Query result
  */
 function executeQuery($query, $params = []) {
     global $pdo;
@@ -84,6 +25,9 @@ function executeQuery($query, $params = []) {
 
 /**
  * Get single row from database
+ * @param string $query SQL query
+ * @param array $params Parameters for prepared statement
+ * @return array|false Single row or false if not found
  */
 function fetchSingle($query, $params = []) {
     $stmt = executeQuery($query, $params);
@@ -92,6 +36,9 @@ function fetchSingle($query, $params = []) {
 
 /**
  * Get multiple rows from database
+ * @param string $query SQL query
+ * @param array $params Parameters for prepared statement
+ * @return array Multiple rows
  */
 function fetchMultiple($query, $params = []) {
     $stmt = executeQuery($query, $params);
@@ -100,6 +47,9 @@ function fetchMultiple($query, $params = []) {
 
 /**
  * Get single value from database
+ * @param string $query SQL query
+ * @param array $params Parameters for prepared statement
+ * @return mixed Single value
  */
 function fetchValue($query, $params = []) {
     $stmt = executeQuery($query, $params);
@@ -108,6 +58,9 @@ function fetchValue($query, $params = []) {
 
 /**
  * Insert data and return last insert ID
+ * @param string $table Table name
+ * @param array $data Associative array of column => value
+ * @return int Last insert ID
  */
 function insertData($table, $data) {
     global $pdo;
@@ -129,6 +82,11 @@ function insertData($table, $data) {
 
 /**
  * Update data in database
+ * @param string $table Table name
+ * @param array $data Associative array of column => value
+ * @param string $where WHERE clause
+ * @param array $whereParams Parameters for WHERE clause
+ * @return int Number of affected rows
  */
 function updateData($table, $data, $where, $whereParams = []) {
     global $pdo;
@@ -154,6 +112,10 @@ function updateData($table, $data, $where, $whereParams = []) {
 
 /**
  * Delete data from database
+ * @param string $table Table name
+ * @param string $where WHERE clause
+ * @param array $params Parameters for WHERE clause
+ * @return int Number of affected rows
  */
 function deleteData($table, $where, $params = []) {
     global $pdo;
@@ -196,6 +158,7 @@ function rollbackTransaction() {
 
 /**
  * Check if we're in a transaction
+ * @return bool
  */
 function inTransaction() {
     global $pdo;
@@ -203,10 +166,21 @@ function inTransaction() {
 }
 
 /**
- * Get database type
+ * Get database type (sqlite or pgsql)
+ * @return string
  */
 function getDatabaseType() {
-    global $databaseType;
-    return $databaseType;
+    global $pdo;
+    return $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+}
+
+/**
+ * Get current timestamp function based on database type
+ * @return string
+ */
+function getCurrentTimestamp() {
+    global $pdo;
+    $dbType = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    return $dbType === 'sqlite' ? "datetime('now')" : 'CURRENT_TIMESTAMP';
 }
 ?>

@@ -329,9 +329,13 @@ function logActivity($action, $details = '', $userId = null) {
     }
     
     try {
+        // Get appropriate timestamp function based on database type
+        global $databaseType;
+        $timestampFunc = ($databaseType === 'postgresql') ? 'CURRENT_TIMESTAMP' : "datetime('now')";
+        
         $stmt = $pdo->prepare("
             INSERT INTO activity_logs (user_id, action, description, ip_address, user_agent, created_at) 
-            VALUES (?, ?, ?, ?, ?, datetime('now'))
+            VALUES (?, ?, ?, ?, ?, $timestampFunc)
         ");
         
         $stmt->execute([

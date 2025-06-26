@@ -1,47 +1,42 @@
 <?php
 /**
- * Database Connection Configuration
- * RideMax Super App - Hybrid PostgreSQL/SQLite Support
+ * PostgreSQL Database Connection
+ * Direct PostgreSQL implementation for RideMax
  */
 
-// Check if PostgreSQL is available
+// Get database configuration from environment variables
 $databaseUrl = $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL');
-$pdo = null;
-$databaseType = 'sqlite';
+$dbConfig = parse_url($databaseUrl);
 
-if (!empty($databaseUrl)) {
-    // Try PostgreSQL connection
-    $dbConfig = parse_url($databaseUrl);
-    
-    $pdo_options = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false
-    ];
-    
-    try {
-        $host = $dbConfig['host'];
-        $port = $dbConfig['port'] ?? 5432;
-        $dbname = ltrim($dbConfig['path'], '/');
-        $username = $dbConfig['user'];
-        $password = $dbConfig['pass'];
-        
-        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-        $pdo = new PDO($dsn, $username, $password, $pdo_options);
-        
-        $databaseType = 'postgresql';
-        
-    } catch (PDOException $e) {
-        error_log("PostgreSQL connection failed, using SQLite: " . $e->getMessage());
-        $pdo = null;
-    }
-}
+// PDO options for security and performance
+$pdo_options = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES => false,
+    PDO::ATTR_PERSISTENT => true
+];
 
-// Fallback to SQLite if PostgreSQL failed or not available
-if (!$pdo) {
-    $databaseType = 'sqlite';
+try {
+    // Create PostgreSQL DSN
+    $host = $dbConfig['host'];
+    $port = $dbConfig['port'] ?? 5432;
+    $dbname = ltrim($dbConfig['path'], '/');
+    $username = $dbConfig['user'];
+    $password = $dbConfig['pass'];
+    
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    
+    // Create PDO connection for PostgreSQL
+    $pdo = new PDO($dsn, $username, $password, $pdo_options);
+    
+} catch (PDOException $e) {
+    // Log the error and fallback to SQLite
+    error_log("PostgreSQL connection failed: " . $e->getMessage());
+    
+    // Reset to use SQLite
     $dbFile = __DIR__ . '/../database/ridemax.db';
     
+    // Create database if it doesn't exist
     if (!file_exists($dbFile)) {
         $dbDir = dirname($dbFile);
         if (!file_exists($dbDir)) {
@@ -50,24 +45,24 @@ if (!$pdo) {
         require_once __DIR__ . '/../database/sqlite_setup.php';
     }
     
-    $pdo_options = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false
-    ];
-    
     try {
         $dsn = "sqlite:$dbFile";
-        $pdo = new PDO($dsn, null, null, $pdo_options);
+        $pdo = new PDO($dsn, null, null, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false
+        ]);
         $pdo->exec('PRAGMA foreign_keys = ON');
     } catch (PDOException $e) {
-        error_log("Database connection failed: " . $e->getMessage());
-        die("Koneksi database gagal. Silakan coba lagi nanti.");
+        die("Database connection failed: " . $e->getMessage());
     }
 }
 
 /**
  * Execute a query with error handling
+ * @param string $query SQL query
+ * @param array $params Parameters for prepared statement
+ * @return mixed Query result
  */
 function executeQuery($query, $params = []) {
     global $pdo;
@@ -200,13 +195,5 @@ function rollbackTransaction() {
 function inTransaction() {
     global $pdo;
     return $pdo->inTransaction();
-}
-
-/**
- * Get database type
- */
-function getDatabaseType() {
-    global $databaseType;
-    return $databaseType;
 }
 ?>
