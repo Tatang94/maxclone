@@ -58,10 +58,10 @@ include 'includes/header.php';
             <div class="col-6">
                 <div class="action-card bg-white shadow-sm rounded-3 p-3 text-center h-100" onclick="location.href='order.php'">
                     <div class="action-icon bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="fas fa-car fa-lg"></i>
+                        <i class="fas fa-utensils fa-lg"></i>
                     </div>
-                    <h6 class="mb-1">Pesan Perjalanan</h6>
-                    <small class="text-muted">Cepat & Aman</small>
+                    <h6 class="mb-1">Pesan Makanan</h6>
+                    <small class="text-muted">Cepat & Hemat</small>
                 </div>
             </div>
             <div class="col-6">
