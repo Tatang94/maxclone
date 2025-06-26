@@ -330,8 +330,8 @@ function logActivity($action, $details = '', $userId = null) {
     
     try {
         $stmt = $pdo->prepare("
-            INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent, created_at) 
-            VALUES (?, ?, ?, ?, ?, NOW())
+            INSERT INTO activity_logs (user_id, action, description, ip_address, user_agent, created_at) 
+            VALUES (?, ?, ?, ?, ?, datetime('now'))
         ");
         
         $stmt->execute([
