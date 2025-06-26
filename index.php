@@ -162,9 +162,8 @@ function loadRecentOrders() {
             } else {
                 container.innerHTML = `
                     <div class="text-center text-muted py-4">
-                        <i class="fas fa-car fa-2x mb-2 opacity-50"></i>
+                        <i class="fas fa-history fa-2x mb-2 opacity-50"></i>
                         <p>Belum ada pesanan terbaru</p>
-                        <a href="order.php" class="btn btn-primary btn-sm">Pesan Perjalanan Pertama</a>
                     </div>
                 `;
             }
