@@ -23,7 +23,7 @@ if (!isLoggedIn()) {
 }
 
 $user = getCurrentUser();
-$pageTitle = 'Pesan Perjalanan - RideMax';
+$pageTitle = 'Pesan Makanan - RideMax';
 include 'includes/header.php';
 ?>
 
@@ -34,7 +34,7 @@ include 'includes/header.php';
             <button class="btn btn-link text-white p-0 me-3" onclick="history.back()">
                 <i class="fas fa-arrow-left fa-lg"></i>
             </button>
-            <h5 class="mb-0">Pesan Perjalanan</h5>
+            <h5 class="mb-0">Pesan Makanan</h5>
         </div>
     </div>
 
@@ -43,78 +43,103 @@ include 'includes/header.php';
         <form id="orderForm">
             <!-- Location Selection -->
             <div class="location-section bg-white rounded-3 shadow-sm mb-3">
-                <!-- Pickup Location -->
+                <!-- Restaurant Location -->
                 <div class="location-item border-bottom" style="padding: 15px;">
                     <div class="d-flex align-items-center">
-                        <div class="location-dot me-2" style="width: 12px; height: 12px; background: #dc3545; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #dc3545;"></div>
+                        <div class="location-dot me-2" style="width: 12px; height: 12px; background: #ff6b35; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #ff6b35;"></div>
                         <div class="flex-grow-1">
-                            <div class="location-label text-muted mb-1" style="font-size: 11px;">Lokasi penjemputan</div>
-                            <input type="text" class="form-control border-0 p-0" id="pickup_location" name="pickup_location" 
-                                   placeholder="Gang Tiga Desa, 1" 
+                            <div class="location-label text-muted mb-1" style="font-size: 11px;">Lokasi Resto</div>
+                            <input type="text" class="form-control border-0 p-0" id="restaurant_location" name="restaurant_location" 
+                                   placeholder="Pilih restoran" 
                                    style="font-size: 14px; font-weight: 500; background: transparent; color: #333; box-shadow: none;"
                                    required>
-                            <input type="text" class="form-control border-0 p-0 mt-1" id="pickup_detail" name="pickup_detail" 
-                                   placeholder="Titik penjemputan" 
-                                   style="font-size: 12px; color: #888; background: transparent; box-shadow: none;">
+                            <div class="location-status mt-1" style="font-size: 12px; color: #28a745;">
+                                <i class="fas fa-map-marker-alt me-1"></i>Lokasi resto tersedia
+                            </div>
                         </div>
-                        <button type="button" class="btn btn-link text-muted p-1" id="useCurrentLocation">
+                        <button type="button" class="btn btn-link text-muted p-1" id="selectRestaurant">
                             <i class="fas fa-chevron-right" style="font-size: 12px;"></i>
                         </button>
                     </div>
                 </div>
                 
-                <!-- Destination -->
+                <!-- Delivery Address -->
                 <div class="location-item" style="padding: 15px;">
                     <div class="d-flex align-items-center">
                         <div class="location-dot me-2" style="width: 12px; height: 12px; background: #28a745; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #28a745;"></div>
                         <div class="flex-grow-1">
-                            <div class="location-label text-muted mb-1" style="font-size: 11px;">Tujuan</div>
-                            <input type="text" class="form-control border-0 p-0" id="destination" name="destination" 
-                                   placeholder="Masukkan alamat tujuan" 
+                            <div class="location-label text-muted mb-1" style="font-size: 11px;">Alamat Pengiriman</div>
+                            <input type="text" class="form-control border-0 p-0" id="delivery_address" name="delivery_address" 
+                                   placeholder="Lokasi saat ini" 
                                    style="font-size: 14px; font-weight: 500; background: transparent; color: #333; box-shadow: none;"
                                    required>
+                            <div class="location-status mt-1" style="font-size: 12px; color: #888;">
+                                <i class="fas fa-crosshairs me-1"></i>Akurasi: 34m
+                            </div>
                         </div>
-                        <button type="button" class="btn btn-link text-muted p-1">
-                            <i class="fas fa-chevron-right" style="font-size: 12px;"></i>
+                        <button type="button" class="btn btn-link text-muted p-1" id="useCurrentLocation">
+                            <i class="fas fa-crosshairs" style="font-size: 12px;"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Details Section -->
+            <!-- Order Details Section -->
             <div class="details-section bg-white rounded-3 shadow-sm mb-3" style="padding: 15px;">
                 <div class="d-flex align-items-center mb-2">
                     <div class="me-2">
-                        <i class="fas fa-list-ul" style="color: #666; font-size: 16px;"></i>
+                        <i class="fas fa-shopping-cart" style="color: #666; font-size: 16px;"></i>
                     </div>
                     <div class="flex-grow-1">
-                        <h6 class="mb-0" style="font-weight: 500; font-size: 14px;">Perincian</h6>
+                        <h6 class="mb-0" style="font-weight: 500; font-size: 14px;">Detail Pesanan</h6>
                     </div>
                 </div>
                 
                 <div class="detail-options">
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-1 detail-option active" data-option="account" style="font-size: 12px;">
-                            <i class="fas fa-user me-1" style="font-size: 10px;"></i>Dari akun
+                    <div class="d-flex gap-2 mb-3">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-1 detail-option active" data-option="delivery" style="font-size: 12px;">
+                            <i class="fas fa-motorcycle me-1" style="font-size: 10px;"></i>Delivery
                         </button>
-                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-1 detail-option" data-option="now" style="font-size: 12px;">
-                            <i class="fas fa-clock me-1" style="font-size: 10px;"></i>Saat ini
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-1 detail-option" data-option="pickup" style="font-size: 12px;">
+                            <i class="fas fa-walking me-1" style="font-size: 10px;"></i>Pickup
                         </button>
+                    </div>
+                    
+                    <div class="order-time">
+                        <label class="form-label" style="font-size: 12px; color: #666;">Waktu Pengiriman</label>
+                        <select class="form-select form-select-sm" id="delivery_time" name="delivery_time">
+                            <option value="now">Sekarang (30-45 menit)</option>
+                            <option value="scheduled">Jadwalkan</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
-            <!-- Map Section -->
-            <div class="map-section bg-white rounded-3 shadow-sm mb-3" style="padding: 15px;">
-                <div class="map-header mb-2">
-                    <h6 class="mb-0" style="font-weight: 500; font-size: 14px;">Peta Rute</h6>
-                    <small class="text-muted" style="font-size: 11px;">Rute akan ditampilkan setelah lokasi diisi</small>
+            <!-- Menu Selection Section -->
+            <div class="menu-section bg-white rounded-3 shadow-sm mb-3" style="padding: 15px;">
+                <div class="menu-header mb-3">
+                    <h6 class="mb-0" style="font-weight: 500; font-size: 14px;">Pilih Menu Makanan</h6>
+                    <small class="text-muted" style="font-size: 11px;">Pilih makanan dari restoran yang tersedia</small>
                 </div>
-                <div id="map" style="height: 180px; border-radius: 8px; background: #f8f9fa; border: 1px solid #dee2e6;"></div>
-                <div id="route-info" class="mt-2 d-none">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <small class="text-muted" style="font-size: 11px;">Jarak:</small>
+                
+                <div id="selected-restaurant" class="alert alert-info d-none" style="font-size: 12px;">
+                    <i class="fas fa-store me-2"></i>
+                    <span id="restaurant-name">Belum ada restoran dipilih</span>
+                </div>
+                
+                <div id="food-menu-list" class="food-items">
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-utensils fa-2x mb-2 opacity-50"></i>
+                        <p style="font-size: 12px;">Pilih restoran terlebih dahulu untuk melihat menu</p>
+                    </div>
+                </div>
+                
+                <div id="selected-items" class="selected-items mt-3 d-none">
+                    <h6 style="font-size: 13px; font-weight: 500;">Item Dipilih:</h6>
+                    <div id="cart-items"></div>
+                    <div class="total-section mt-2 pt-2 border-top">
+                        <div class="d-flex justify-content-between">
+                            <span style="font-size: 12px;">Subtotal:</span>
                             <span id="distance" class="fw-bold" style="font-size: 12px;">-</span>
                         </div>
                         <div>
