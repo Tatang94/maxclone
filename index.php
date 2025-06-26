@@ -92,9 +92,6 @@ include 'includes/header.php';
                 <button class="btn btn-sm btn-outline-primary" onclick="refreshFoodMenu()">
                     <i class="fas fa-refresh"></i>
                 </button>
-                <a href="merchant.php" class="btn btn-sm btn-primary">
-                    <i class="fas fa-store"></i> Merchant
-                </a>
             </div>
         </div>
         
@@ -253,10 +250,7 @@ function loadFoodMenu(category = '') {
                     <div class="col-12 text-center py-4">
                         <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
                         <h6>Belum Ada Menu</h6>
-                        <p class="text-muted">Merchant belum menambahkan menu makanan</p>
-                        <a href="merchant.php" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i> Kelola Menu Merchant
-                        </a>
+                        <p class="text-muted">Menu makanan akan muncul di sini ketika merchant menambahkan</p>
                     </div>
                 `;
             }

@@ -144,6 +144,11 @@ RideMax is a comprehensive ride-hailing super app built with PHP, featuring mobi
 ✓ Added food_categories, menu_items, and merchants tables to database
 ✓ Sample data removed for clean production-ready environment
 ✓ Merchant panel 100% functional with CRUD operations for menu management
+✓ Merchant system terpisah dengan halaman /merchant redirect ke pendaftaran (June 26, 2025)
+✓ Form pendaftaran merchant dengan dropdown alamat Indonesia lengkap (Provinsi → Kota → Kecamatan → Desa)
+✓ Dashboard merchant terpisah dengan tampilan yang sudah dioptimasi
+✓ Login/logout system merchant independen dari user regular
+✓ Menu merchant dipindah ke dropdown profile untuk UI yang lebih bersih
 
 ## User Preferences
 
