@@ -129,7 +129,10 @@ $currentUser = isLoggedIn() ? getCurrentUser() : null;
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user me-2"></i>Profil</a></li>
+                            <li><a class="dropdown-item" href="wallet.php"><i class="fas fa-wallet me-2"></i>Dompet</a></li>
                             <li><a class="dropdown-item" href="help.php"><i class="fas fa-headset me-2"></i>Bantuan</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-success" href="merchant.php"><i class="fas fa-store me-2"></i>Merchant Panel</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i>Keluar</a></li>
                         </ul>
@@ -173,10 +176,7 @@ $currentUser = isLoggedIn() ? getCurrentUser() : null;
                         <i class="fas fa-home me-3"></i>Beranda
                     </a>
                     <a href="order.php" class="list-group-item list-group-item-action">
-                        <i class="fas fa-utensils me-3"></i>Pesan Makanan
-                    </a>
-                    <a href="merchant.php" class="list-group-item list-group-item-action">
-                        <i class="fas fa-store me-3"></i>Merchant Panel
+                        <i class="fas fa-bicycle me-3"></i>Pesan Perjalanan
                     </a>
                     <a href="wallet.php" class="list-group-item list-group-item-action">
                         <i class="fas fa-wallet me-3"></i>Dompet Digital
@@ -195,6 +195,10 @@ $currentUser = isLoggedIn() ? getCurrentUser() : null;
                     </a>
                     <a href="help.php" class="list-group-item list-group-item-action">
                         <i class="fas fa-headset me-3"></i>Bantuan
+                    </a>
+                    <div class="border-top my-2"></div>
+                    <a href="merchant.php" class="list-group-item list-group-item-action text-success">
+                        <i class="fas fa-store me-3"></i>Merchant Panel
                     </a>
                 <?php endif; ?>
                 <div class="border-top my-2"></div>
