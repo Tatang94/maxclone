@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug RideMax</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-item { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>RideMax Debug Page</h1>
+    <div id="tests"></div>
+    
+    <script>
+        const tests = [];
+        
+        function addTest(name, status, message) {
+            tests.push({name, status, message});
+        }
+        
+        // Test 1: Basic JavaScript
+        try {
+            addTest('JavaScript Execution', 'success', 'JavaScript berjalan dengan baik');
+        } catch(e) {
+            addTest('JavaScript Execution', 'error', 'Error: ' + e.message);
+        }
+        
+        // Test 2: CSS Loading
+        const cssTest = document.createElement('link');
+        cssTest.rel = 'stylesheet';
+        cssTest.href = 'assets/css/style.css';
+        cssTest.onload = function() {
+            addTest('CSS Loading', 'success', 'CSS berhasil dimuat');
+            renderTests();
+        };
+        cssTest.onerror = function() {
+            addTest('CSS Loading', 'error', 'CSS gagal dimuat');
+            renderTests();
+        };
+        document.head.appendChild(cssTest);
+        
+        // Test 3: Service Worker
+        if ('serviceWorker' in navigator) {
+            addTest('Service Worker Support', 'success', 'Service Worker didukung');
+        } else {
+            addTest('Service Worker Support', 'error', 'Service Worker tidak didukung');
+        }
+        
+        // Test 4: Local Storage
+        try {
+            localStorage.setItem('test', 'value');
+            localStorage.removeItem('test');
+            addTest('Local Storage', 'success', 'Local Storage tersedia');
+        } catch(e) {
+            addTest('Local Storage', 'error', 'Local Storage tidak tersedia');
+        }
+        
+        function renderTests() {
+            const container = document.getElementById('tests');
+            container.innerHTML = tests.map(test => 
+                `<div class="test-item ${test.status}">
+                    <strong>${test.name}:</strong> ${test.message}
+                </div>`
+            ).join('');
+        }
+        
+        // Render initial tests
+        setTimeout(renderTests, 1000);
+        
+        // Test API connectivity
+        fetch('/process/admin_process.php?action=test')
+            .then(response => response.json())
+            .then(data => {
+                addTest('API Connectivity', 'success', 'API dapat diakses');
+                renderTests();
+            })
+            .catch(error => {
+                addTest('API Connectivity', 'error', 'API tidak dapat diakses: ' + error.message);
+                renderTests();
+            });
+    </script>
+</body>
+</html>
